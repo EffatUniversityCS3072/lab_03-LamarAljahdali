@@ -1,7 +1,7 @@
 ---
 title: "Lab 03"
-author: ""
-date: ""
+author: "Lamar Aljahdali"
+date: "5/19/2023"
 editor_options: 
   chunk_output_type: console
 output:
@@ -27,6 +27,11 @@ fl_votes %>%
 # Exercise 1
 
 ```{r add-winner}
+fl_votes_sf <- st_as_sf(fl_votes, coords = c("longitude", "latitude"), crs = 4326)
+
+fl_votes_sf <- fl_votes_sf %>% 
+  mutate(winner20 = if_else(dem20 > rep20, "Democrat",
+                            if_else(dem20 < rep20, "Republican", "Tie")))
 
 ```
 
@@ -34,35 +39,64 @@ fl_votes %>%
 # Exercise 2
 
 ```{r fl-plot-1}
-
+ggplot() +
+  geom_sf(data = fl_votes_sf, aes(fill = winner20)) +
+  scale_fill_manual(values = c("Democrat" = "#0015BC", "Republican" = "#DE0100", "Tie" = "gray"),
+                    na.value = "gray") +
+  labs(fill = "Winner 2020") +
+  theme_minimal()
 
 ```
 
 # Exercise #3
 
 ```{r fl-props}
-
+fl_votes_sf <- fl_votes_sf %>% 
+  mutate(prop_rep16 = rep16 / (rep16 + dem16),
+         prop_rep20 = rep20 / (rep20 + dem20))
 ```
 
 # Exercise 4
 
 ```{r fl-plot-2}
-
+ggplot() +
+  geom_sf(data = fl_votes_sf, aes(fill = prop_rep20)) +
+  scale_fill_gradient(low = "#DE0100", high = "#0015BC",
+                      na.value = "gray") +
+  labs(fill = "Republican Proportion 2020") +
+  theme_minimal()
 ```
 
 # Exercise 5
 
 ```{r fl-change}
+fl_votes_sf <- fl_votes_sf %>% 
+  mutate(diff_rep = prop_rep20 - prop_rep16)
 
 ```
 
 # Exercise 6
 
 ```{r fl-plot-3}
-
+ggplot() +
+  geom_sf(data = fl_votes_sf, aes(fill = diff_rep)) +
+  scale_fill_gradient2(low = "#0015BC", mid = "gray", high = "#DE0100",
+                       midpoint = 0, na.value = "gray",
+                       guide = guide_colorbar(title = "Vote Share Change")) +
+  labs(fill = "Vote Share Change") +
+  theme_minimal()
 ```
 
 # Exercise 7
+The visualizations developed provide insights into the 2016 and 2020 Presidential elections in Florida. 
+The first plot (Exercise 2) shows the winner of each county in the 2020 election, with Democrat, Republican, and Tie categories represented by different colors. 
+The second plot (Exercise 4) displays the proportion of the two-party vote cast for the Republican candidate in 2020, with a gradient color scheme from red to blue. 
+The third plot (Exercise 6) depicts the change in Republican vote share between 2016 and 2020, with a color gradient from blue to red.
+
+Limitations of these visualizations include:
+1. The visualizations focus only on Republican and Democratic candidates, without considering other parties or independent candidates.
+2. The color schemes chosen for the plots are subjective and may not be universally interpretable.
+3. The plots do not take into account the population differences between counties, which can impact the overall representation of results.
 
 
 
